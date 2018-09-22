@@ -135,39 +135,47 @@ class ViewController: UIViewController {
 func testMockScript() {
     do {
         // 5. 単純な計算のScript
-        print("==========================================================================================")
-        print("5. 単純な計算のScript")
-        print("==========================================================================================")
-        let result1 = try MockHelper.verifySingleKey(lockScript: simpleCalculation.lockScript, unlockScriptBuilder: simpleCalculation.UnlockScriptBuilder(), key: MockKey.keyA)
-        print("Mock result1: \(result1)")
-        
-        // 6. P2PKHのScript
-        print("==========================================================================================")
-        print("6. P2PKHのScript")
-        print("==========================================================================================")
-        let result2 = try MockHelper.verifySingleKey(lockScript: P2PKH.lockScript, unlockScriptBuilder: P2PKH.UnlockScriptBuilder(), key: MockKey.keyA)
-        print("Mock result2: \(result2)")
+//        print("==========================================================================================")
+//        print("5. 単純な計算のScript")
+//        print("==========================================================================================")
+//        let result1 = try MockHelper.verifySingleKey(lockScript: simpleCalculation.lockScript, unlockScriptBuilder: simpleCalculation.UnlockScriptBuilder(), key: MockKey.keyA)
+//        print("Mock result1: \(result1)")
+//
+//        // 6. P2PKHのScript
+//        print("==========================================================================================")
+//        print("6. P2PKHのScript")
+//        print("==========================================================================================")
+//        let result2 = try MockHelper.verifySingleKey(lockScript: P2PKH.lockScript, unlockScriptBuilder: P2PKH.UnlockScriptBuilder(), key: MockKey.keyA)
+//        print("Mock result2: \(result2)")
+//
+//        // 7. 2 of 3 の MultisigのScript
+//        print("==========================================================================================")
+//        print("7. 2 of 3 の MultisigのScript")
+//        print("==========================================================================================")
+//        let result3 = try MockHelper.verifyMultiKey(lockScript: Multisig2of3.lockScript, unlockScriptBuilder: Multisig2of3.UnlockScriptBuilder(), keys: [MockKey.keyA, MockKey.keyB], verbose: true)
+//        print("Mock result3: \(result3)")
+//
+//        // 8. P2SH形式のMultisig
+//        print("==========================================================================================")
+//        print("8. P2SH形式のMultisig")
+//        print("==========================================================================================")
+//        let result4 = try MockHelper.verifySingleKey(lockScript: P2SHMultisig.lockScript, unlockScriptBuilder: P2SHMultisig.UnlockScriptBuilder(), key: MockKey.keyA)
+//        print("Mock result4: \(result4)")
+//
+//        // 9. OP_IFを使ったScript
+//        print("==========================================================================================")
+//        print("9. OP_IFを使ったScript")
+//        print("==========================================================================================")
+//        let result5 = try MockHelper.verifySingleKey(lockScript: OPIF.lockScript, unlockScriptBuilder: OPIF.UnlockScriptBuilder(), key: MockKey.keyB, verbose: true)
+//        print("Mock result5: \(result5)")
 
-        // 7. 2 of 3 の MultisigのScript
+        // ロケーションを使ったP2SH Script
         print("==========================================================================================")
-        print("7. 2 of 3 の MultisigのScript")
+        print("ロケーションを使ったP2SH Script")
         print("==========================================================================================")
-        let result3 = try MockHelper.verifyMultiKey(lockScript: Multisig2of3.lockScript, unlockScriptBuilder: Multisig2of3.UnlockScriptBuilder(), keys: [MockKey.keyA, MockKey.keyB], verbose: true)
-        print("Mock result3: \(result3)")
-        
-        // 8. P2SH形式のMultisig
-        print("==========================================================================================")
-        print("8. P2SH形式のMultisig")
-        print("==========================================================================================")
-        let result4 = try MockHelper.verifySingleKey(lockScript: P2SHMultisig.lockScript, unlockScriptBuilder: P2SHMultisig.UnlockScriptBuilder(), key: MockKey.keyA)
-        print("Mock result4: \(result4)")
-        
-        // 9. OP_IFを使ったScript
-        print("==========================================================================================")
-        print("9. OP_IFを使ったScript")
-        print("==========================================================================================")
-        let result5 = try MockHelper.verifySingleKey(lockScript: OPIF.lockScript, unlockScriptBuilder: OPIF.UnlockScriptBuilder(), key: MockKey.keyB, verbose: true)
-        print("Mock result5: \(result5)")
+        let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
+        print("Mock result5: \(result6)")
+
     } catch let error {
         print("Mock Script Error: \(error)")
     }

@@ -9,6 +9,31 @@
 import Foundation
 import BitcoinKit
 
+struct LocationHash {
+    // lock script
+    static let lockLocationScript = try! Script()
+        // TODO: ロケーションデータを入れる
+        .appendData(String(12345).data(using: String.Encoding.utf8)!)
+        .append(.OP_EQUAL)
+    
+    static let lockScript = try! Script()
+        .append(.OP_HASH160)
+        .appendData(Crypto.sha256ripemd160(lockLocationScript.data))
+        .append(.OP_EQUAL)
+    
+    // unlock script builder
+    struct UnlockScriptBuilder: MockUnlockScriptBuilder {
+        func build(pairs: [SigKeyPair]) -> Script {
+            let script = try! Script()
+                .append(.OP_0)
+                // TODO: ロケーションデータを入れる
+                .appendData(String(12345).data(using: String.Encoding.utf8)!)
+                .appendData(lockLocationScript.data)
+            return script
+        }
+    }
+}
+
 // TODO: - 5. 単純な計算のScript
 struct simpleCalculation {
     // lock script
