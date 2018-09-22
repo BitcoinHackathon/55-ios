@@ -42,6 +42,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>YES</string>
+	<string>Privacy - Location Always and When In Use Usage Description</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Privacy - Location Always Usage Description</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Privacy - Location When In Use Usage Description</string>
 </dict>
 </plist>
