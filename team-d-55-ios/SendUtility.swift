@@ -11,6 +11,78 @@ import BitcoinKit
 
 class SendUtility {
     
+    static func locationHashTransactionBuild(amount: UInt64, change: (address: Address, amount: UInt64), utxos: [UnspentTransaction]) throws -> UnsignedTransaction {
+        let lockLocationScript = try! Script()
+            // TODO: ロケーションデータを入れる
+            .appendData(String(12345).data(using: String.Encoding.utf8)!)
+            .append(.OP_EQUAL)
+
+        let locationHashScriptTo = try! Script()
+            .append(.OP_IF)
+                .append(.OP_DUP)
+                .append(.OP_HASH160)
+                .appendData(MockKey.keyA.pubkeyHash)
+                .append(.OP_EQUALVERIFY)
+                .append(.OP_CHECKSIG)
+            .append(.OP_ELSE)
+                .append(.OP_HASH160)
+                .appendData(Crypto.sha256ripemd160(lockLocationScript.data))
+                .append(.OP_EQUAL)
+            .append(.OP_ENDIF)
+            .toP2SH()
+        
+        let addr = locationHashScriptTo.standardAddress(network: .testnet)
+
+        let locationHashScriptChange = Script(address: change.address)!
+        
+        let toOutput = TransactionOutput(value: amount, lockingScript: locationHashScriptTo.data)
+        let changeOutput = TransactionOutput(value: change.amount, lockingScript: locationHashScriptChange.data)
+        
+        let outputs = [toOutput, changeOutput]
+        
+        let unsignedInputs = utxos.map { TransactionInput(previousOutput: $0.outpoint, signatureScript: Data(), sequence: UInt32.max) }
+        let tx = Transaction(version: 1, inputs: unsignedInputs, outputs: outputs, lockTime: 0)
+        return UnsignedTransaction(tx: tx, utxos: utxos)
+    }
+    
+    static func locationHashTransactionSign(_ unsignedTransaction: UnsignedTransaction, with keys: [PrivateKey]) throws -> Transaction {
+        // Define Transaction
+        var signingInputs: [TransactionInput]
+        var signingTransaction: Transaction {
+            let tx: Transaction = unsignedTransaction.tx
+            return Transaction(version: tx.version, inputs: signingInputs, outputs: tx.outputs, lockTime: tx.lockTime)
+        }
+        
+        // Sign
+        signingInputs = unsignedTransaction.tx.inputs
+        let hashType = SighashType.BCH.ALL
+        for (i, utxo) in unsignedTransaction.utxos.enumerated() {
+            // Select key
+            let pubkeyHash: Data = Script.getPublicKeyHash(from: utxo.output.lockingScript)
+            
+            let keysOfUtxo: [PrivateKey] = keys.filter { $0.publicKey().pubkeyHash == pubkeyHash }
+            guard let key = keysOfUtxo.first else {
+                continue
+            }
+            
+            // Sign transaction hash
+            let sighash: Data = signingTransaction.signatureHash(for: utxo.output, inputIndex: i, hashType: SighashType.BCH.ALL)
+            let signature: Data = try Crypto.sign(sighash, privateKey: key)
+            let txin = signingInputs[i]
+            let pubkey = key.publicKey()
+            
+            // Create Signature Script
+            let sigWithHashType: Data = signature + UInt8(hashType)
+            let unlockingScript: Script = try Script()
+                .appendData(sigWithHashType)
+                .appendData(pubkey.data)
+            
+            // Update TransactionInput
+            signingInputs[i] = TransactionInput(previousOutput: txin.previousOutput, signatureScript: unlockingScript.data, sequence: txin.sequence)
+        }
+        return signingTransaction
+    }
+    
     static func customTransactionBuild(to: (address: Address, amount: UInt64), change: (address: Address, amount: UInt64), utxos: [UnspentTransaction]) throws -> UnsignedTransaction {
         let lockScriptTo = try! Script()
             .append(.OP_DUP)

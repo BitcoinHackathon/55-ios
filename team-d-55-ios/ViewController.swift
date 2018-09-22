@@ -102,8 +102,8 @@ class ViewController: UIViewController {
             
             // TODO: 4-2. ウォレットから送金 [送金完了後、reloadBalanceもやろう！]
             // WRITE ME!
-            try wallet?.send(to: address, amount: 1000) { [weak self] (response) in
-//            try customSend(to: address, amount: 1000) { [weak self] (response) in
+//            try wallet?.send(to: address, amount: 1000) { [weak self] (response) in
+            try customSend(amount: 1000) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
                 self?.reloadBalance()
@@ -113,7 +113,7 @@ class ViewController: UIViewController {
         }
     }
     
-    func customSend(to toAddress: Address, amount: UInt64, completion: ((String?) -> Void)?) throws {
+    func customSend(amount: UInt64, completion: ((String?) -> Void)?) throws {
         guard let wallet = wallet else {
             return
         }
@@ -123,9 +123,11 @@ class ViewController: UIViewController {
         let change: UInt64 = totalAmount - amount - fee
         
         // ここがカスタム！
-        let unsignedTx = try SendUtility.customTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
-        let signedTx = try SendUtility.customTransactionSign(unsignedTx, with: [wallet.privateKey])
-        
+//        let unsignedTx = try SendUtility.customTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        let unsignedTx = try SendUtility.locationHashTransactionBuild(amount: amount, change: (wallet.address, change), utxos: utxosToSpend)
+//        let signedTx = try SendUtility.customTransactionSign(unsignedTx, with: [wallet.privateKey])
+        let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
+
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
     }
@@ -176,6 +178,12 @@ func testMockScript() {
         let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
         print("Mock result5: \(result6)")
 
+        // Lock Until Script
+        print("==========================================================================================")
+        print("Lock Until Script")
+        print("==========================================================================================")
+        let result7 = try MockHelper.verifySingleKey(lockScript: LockUntil.lockScript, unlockScriptBuilder: LockUntil.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
+        print("Mock result5: \(result7)")
     } catch let error {
         print("Mock Script Error: \(error)")
     }
