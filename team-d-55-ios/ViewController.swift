@@ -8,7 +8,6 @@
 
 import UIKit
 import BitcoinKit
-import SwiftLocation
 
 class ViewController: UIViewController {
     @IBOutlet weak var qrCodeImageView: UIImageView!
@@ -24,20 +23,6 @@ class ViewController: UIViewController {
         updateLabels()
         
         testMockScript()
-        logCurrentLocation()
-    }
-    
-    func logCurrentLocation() {
-        SwiftLocation.Locator.currentPosition(
-            accuracy: .house,
-            timeout: Timeout.delayed(60.0),
-            onSuccess: { cllocation in
-                print("Location:\(cllocation.debugDescription)")
-        },
-            onFail: { locationError, cllocation in
-                print("Failed to get location: \(locationError). Location:\(cllocation.debugDescription)")
-        }
-        )
     }
     
     func createWalletIfNeeded() {
