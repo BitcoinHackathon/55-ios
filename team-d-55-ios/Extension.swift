@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MapKit
 
 struct LocationData{
     static let destinationLocation = "12345"
@@ -71,3 +72,8 @@ extension Data: BinaryConvertible {
     }
 }
 
+extension CLLocationCoordinate2D {
+    var areaString: String {
+        return "latitude: \((latitude * 10000.0).rounded(.down)), longitude: \((longitude * 10000.0).rounded(.down))"
+    }
+}
