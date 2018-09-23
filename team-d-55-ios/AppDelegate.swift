@@ -20,6 +20,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // determine the best authorization mode based upon Info.plist file
         Locator.requestAuthorizationIfNeeded()
+        
+        if let _ = launchOptions?[UIApplicationLaunchOptionsKey.location] {
+            Locator.subscribeSignificantLocations(onUpdate: { newLocation in
+                // This block will be executed with the details of the significant location change that triggered the background app launch,
+                // and will continue to execute for any future significant location change events as well (unless canceled).
+            }, onFail: { (err, lastLocation) in
+                // Something bad has occurred
+            })
+        }
+        
         return true
     }
 
