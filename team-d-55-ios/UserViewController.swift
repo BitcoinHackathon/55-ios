@@ -17,8 +17,6 @@ class UserViewController: UIViewController, MKMapViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        logCurrentLocation()
-        
         
 //        let sourceLocation = CLLocationCoordinate2D(latitude:39.173209 , longitude: -94.593933)
         let sourceLocation = SwiftLocation.Locator.currentLocation!.coordinate
@@ -31,13 +29,13 @@ class UserViewController: UIViewController, MKMapViewDelegate {
                 
 //                let destinationLocation = CLLocationCoordinate2D(latitude:38.643172 , longitude: -90.177429)
                 guard let destinationLocation = cllocation.first?.coordinates else {
-                    print("not found")
+                    print("targetAddress not found")
                     return
                 }
 
 //                let sourcePin = CustomPin(pinTitle: "現在地", pinSubTitle: "", location: sourceLocation)
-                let destinationPin = CustomPin(pinTitle: targetAddress, pinSubTitle: "", location: destinationLocation)
 //                self.mapView.addAnnotation(sourcePin)
+                let destinationPin = CustomPin(pinTitle: targetAddress, pinSubTitle: "", location: destinationLocation)
                 self.mapView.addAnnotation(destinationPin)
                 
                 let sourcePlaceMark = MKPlacemark(coordinate: sourceLocation)
@@ -66,29 +64,6 @@ class UserViewController: UIViewController, MKMapViewDelegate {
                 
                 //set delegate for mapview
                 self.mapView.delegate = self
-        },
-            onFail: { locationError in
-                print("Failed to get location: \(locationError).")
-        }
-        )
-    }
-    
-    func logCurrentLocation() {
-        SwiftLocation.Locator.currentPosition(
-            accuracy: .house,
-            timeout: Timeout.delayed(60.0),
-            onSuccess: { cllocation in
-                print("Location:\(cllocation.debugDescription)")
-        },
-            onFail: { locationError, cllocation in
-                print("Failed to get location: \(locationError). Location:\(cllocation.debugDescription)")
-        }
-        )
-        
-        SwiftLocation.Locator.location(
-            fromAddress: "渋谷駅",
-            onSuccess: { cllocation in
-                print("Location:\(cllocation.debugDescription)")
         },
             onFail: { locationError in
                 print("Failed to get location: \(locationError).")
