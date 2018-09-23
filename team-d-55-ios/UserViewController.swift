@@ -99,7 +99,11 @@ class UserViewController: UIViewController, MKMapViewDelegate {
             onUpdate: { cllocation in
                 print("UserView: New location received: \(cllocation)")
                 print("UserView: New locationArea:\(cllocation.coordinate.areaString)")
+                
                 // TODO 位置情報が変更されたタイミングで、UnLock Scriptを毎回実施する
+                if cllocation.coordinate.areaString == "latitude: 35.659, longitude: 139.7" {
+                    self.showGetBitcon()
+                }
             },
             onFail: { locationError, last in
                 print("UserView: Failed with error: \(locationError)")
@@ -112,7 +116,19 @@ class UserViewController: UIViewController, MKMapViewDelegate {
         
     }
     
-    
+    func showGetBitcon() {
+        // アラートを作成
+        let alert = UIAlertController(
+            title: "BitcoinCashの取得",
+            message: "BitcoinCashの取得に成功しました。",
+            preferredStyle: .alert)
+        
+        // アラートにボタンをつける
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        // アラート表示
+        self.present(alert, animated: true, completion: nil)
+    }
     
     //MARK:- MapKit delegates
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
