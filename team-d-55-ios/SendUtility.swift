@@ -30,13 +30,6 @@ class SendUtility {
             .append(.OP_ENDIF)
             .toP2SH()
         
-        let unlockingScript: Script = try Script()
-            .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
-            .appendData(lockLocationScript.data)
-            .append(.OP_FALSE)
-            .appendData(locationHashScript.data)
-
-
 //        let addr = locationHashScriptTo.standardAddress(network: .testnet)
 
         let locationHashScriptChange = Script(address: change.address)!
@@ -195,7 +188,7 @@ class SendUtility {
         return UnsignedTransaction(tx: tx, utxos: utxos)
     }
     
-    static func userTransactionSign(_ unsignedTransaction: UnsignedTransaction, to address: Address, with keys: [PrivateKey]) throws -> Transaction {
+    static func userTransactionSign(_ unsignedTransaction: UnsignedTransaction, to address: Address, with keys: [PrivateKey], locationString: String) throws -> Transaction {
         // Define Transaction
         var signingInputs: [TransactionInput]
         var signingTransaction: Transaction {
@@ -207,7 +200,7 @@ class SendUtility {
         signingInputs = unsignedTransaction.tx.inputs
         for (i, _) in unsignedTransaction.utxos.enumerated() {
             let lockLocationScript = try! Script()
-                .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
+                .appendData(locationString.data(using: String.Encoding.utf8)!)
                 .append(.OP_EQUAL)
             
             let locationHashScript = try! Script()

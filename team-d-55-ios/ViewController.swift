@@ -139,7 +139,6 @@ class ViewController: UIViewController {
         } catch {
             print(error)
         }
-
     }
     
     func userSend(amount: UInt64, completion: ((String?) -> Void)?) throws {
@@ -163,7 +162,7 @@ class ViewController: UIViewController {
         
         // ここがカスタム！
         let unsignedTx = try SendUtility.userTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
-        let signedTx = try SendUtility.userTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey])
+        let signedTx = try SendUtility.userTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey], locationString: LocationData.userLocation)
         
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
@@ -175,11 +174,11 @@ class ViewController: UIViewController {
 func testMockScript() {
     do {
         // ロケーションを使ったP2SH Script
-        print("==========================================================================================")
-        print("ロケーションを使ったP2SH Script")
-        print("==========================================================================================")
-        let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
-        print("Mock result5: \(result6)")
+//        print("==========================================================================================")
+//        print("ロケーションを使ったP2SH Script")
+//        print("==========================================================================================")
+//        let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
+//        print("Mock result5: \(result6)")
 
         // Lock Until Script
 //        print("==========================================================================================")

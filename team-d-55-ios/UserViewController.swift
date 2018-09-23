@@ -15,9 +15,13 @@ class UserViewController: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var joinBtn: UIButton!
 
+    private var wallet: Wallet?  = Wallet()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        createWalletIfNeeded()
+
         // MapViewの中心位置を指定.
         mapView.centerCoordinate = CLLocationCoordinate2DMake(35.654168073121134, 139.7014184576829)
         
@@ -100,10 +104,15 @@ class UserViewController: UIViewController, MKMapViewDelegate {
                 print("UserView: New location received: \(cllocation)")
                 print("UserView: New locationArea:\(cllocation.coordinate.areaString)")
                 
-                // TODO 位置情報が変更されたタイミングで、UnLock Scriptを毎回実施する
-                if cllocation.coordinate.areaString == "latitude: 35.659, longitude: 139.7" {
-                    self.showGetBitcon()
+                do {
+                    try self.userSend(amount: 500, location: cllocation.coordinate.areaString) { [weak self] (response) in
+                        print("送金完了 txid : ", response ?? "")
+                        print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
+                    }
+                } catch {
+                    print(error)
                 }
+
             },
             onFail: { locationError, last in
                 print("UserView: Failed with error: \(locationError)")
@@ -111,6 +120,40 @@ class UserViewController: UIViewController, MKMapViewDelegate {
         )
     }
     
+    func createWalletIfNeeded() {
+        if wallet == nil {
+            let privateKey = PrivateKey(network: .testnet)
+            wallet = Wallet(privateKey: privateKey)
+            wallet?.save()
+        }
+    }
+
+    func userSend(amount: UInt64, location: String, completion: ((String?) -> Void)?) throws {
+        guard let wallet = wallet else {
+            return
+        }
+        
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: transaction.lockingScriptHex)!)
+        let txid: Data = Data(hex: transaction.txid)!
+        let txHash: Data = Data(txid.reversed())
+        let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
+        let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)
+        
+        let utxos = [utxo]
+        var (utxosToSpend, fee) = try StandardUtxoSelector().select(from: utxos, targetValue: amount)
+        fee *= 2
+        let totalAmount: UInt64 = utxosToSpend.reduce(UInt64()) { $0 + $1.output.value }
+        let change: UInt64 = totalAmount - amount - fee
+        
+        let toAddress: Address = try AddressFactory.create("bchtest:qpytf7xczxf2mxa3gd6s30rthpts0tmtgyw8ud2sy3")
+        
+        // ここがカスタム！
+        let unsignedTx = try SendUtility.userTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        let signedTx = try SendUtility.userTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey], locationString: location)
+        
+        let rawtx = signedTx.serialized().hex
+        BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
+    }
     
     @IBAction func join(_ sender: Any) {
         

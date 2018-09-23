@@ -10,13 +10,13 @@ import Foundation
 import MapKit
 
 struct LocationData{
-    static let destinationLocation = "latitude: 35.659, longitude: 139.702"
-    static let userLocation = "latitude: 35.659, longitude: 139.702"
+    static let destinationLocation = "latitude: 35.659, longitude: 139.7"
+    static let userLocation = "latitude: 35.654, longitude: 139.701"
 }
 
 struct transaction{
-    static let lockingScriptHex = "a914f78d6227ebb80eb7ef0141ae243cb8f9e43926c087"
-    static let txid = "c67678e1fc0fdcb0059086a4eaae159a248f9feaeb6d5be10934e71473b05c29"
+    static let lockingScriptHex = "a914f62ce7c41fcd4ca6f5857102563df61ca0c9d49087"
+    static let txid = "7677522e5d92c0a6ae6391f1e471b87e1b3ff246fc0fda38aaeca0a4e45c19df"
 }
 
 extension Data {
