@@ -14,16 +14,16 @@ class UserViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var joinBtn: UIButton!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         logCurrentLocation()
         
-        let targetAddress = "渋谷駅"
         
 //        let sourceLocation = CLLocationCoordinate2D(latitude:39.173209 , longitude: -94.593933)
         let sourceLocation = SwiftLocation.Locator.currentLocation!.coordinate
-
+        
+        let targetAddress = UserDefaults.standard.string(forKey: "targetAddress") ?? "渋谷駅"
         SwiftLocation.Locator.location(
             fromAddress: targetAddress,
             onSuccess: { cllocation in
