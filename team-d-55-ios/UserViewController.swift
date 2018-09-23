@@ -147,7 +147,6 @@ class UserViewController: UIViewController, MKMapViewDelegate {
         
         let toAddress: Address = try AddressFactory.create("bchtest:qpytf7xczxf2mxa3gd6s30rthpts0tmtgyw8ud2sy3")
         
-        // ここがカスタム！
         let unsignedTx = try SendUtility.userTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
         let signedTx = try SendUtility.userTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey], locationString: location)
         

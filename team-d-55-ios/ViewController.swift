@@ -60,7 +60,6 @@ class ViewController: UIViewController {
     // Location Hash Transactionを送信する
     @IBAction func didTapSendLocationHashTransactionButton(_ sender: UIButton) {
         do {
-            // 送金する
             try locationHashSend(amount: 1000) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
@@ -80,7 +79,6 @@ class ViewController: UIViewController {
         let totalAmount: UInt64 = utxosToSpend.reduce(UInt64()) { $0 + $1.output.value }
         let change: UInt64 = totalAmount - amount - fee
         
-        // ここがカスタム！
         let (unsignedTx, scriptHex) = try SendUtility.locationHashTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
         print("hex : ", scriptHex)
         let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
@@ -92,7 +90,6 @@ class ViewController: UIViewController {
     // server向けにLock Until Scriptを送信する
     @IBAction func didTapSendLockScriptTransactionButton(_ sender: UIButton) {
         do {
-            // 送金する
             try serverLockUntilSend(amount: 500) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
@@ -120,7 +117,6 @@ class ViewController: UIViewController {
         let totalAmount: UInt64 = utxosToSpend.reduce(UInt64()) { $0 + $1.output.value }
         let change: UInt64 = totalAmount - amount - fee
 
-        // ここがカスタム！
         let unsignedTx = try SendUtility.serverLockUntilTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
         let signedTx = try SendUtility.serverLockUntilTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey])
         
