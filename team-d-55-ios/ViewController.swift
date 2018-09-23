@@ -17,9 +17,6 @@ class ViewController: UIViewController {
     
     private var wallet: Wallet?  = Wallet()
     
-    var lockingScriptHex : String? = "a914f78d6227ebb80eb7ef0141ae243cb8f9e43926c087"
-    var txid : String? = "39777ac9be2a7fc731989dfaee7f8a66e5ea7d9f7b2eec3e6f93d461b468b8da"
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         createWalletIfNeeded()
@@ -44,13 +41,8 @@ class ViewController: UIViewController {
             balanceLabel.text = "Balance : \(balance) satoshi"
         }
         
-        if let hex = self.lockingScriptHex {
-            lockingScriptHexLabel.text = "Locking Script Hex: \(hex)"
-        }
-        
-        if let txid = self.txid {
-            txidLabel.text = "txid: \(txid)"
-        }
+        lockingScriptHexLabel.text = "Locking Script Hex: \(transaction.lockingScriptHex)"
+        txidLabel.text = "txid: \(transaction.txid)"
     }
     
     func reloadBalance() {
@@ -72,7 +64,6 @@ class ViewController: UIViewController {
             try locationHashSend(amount: 1000) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
-                self?.txid = response
                 self?.reloadBalance()
             }
         } catch {
@@ -92,7 +83,6 @@ class ViewController: UIViewController {
         // ここがカスタム！
         let (unsignedTx, scriptHex) = try SendUtility.locationHashTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
         print("hex : ", scriptHex)
-        self.lockingScriptHex = scriptHex
         let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
         
         let rawtx = signedTx.serialized().hex
@@ -118,8 +108,8 @@ class ViewController: UIViewController {
             return
         }
 
-        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex!)!)
-        let txid: Data = Data(hex: self.txid!)!
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: transaction.lockingScriptHex)!)
+        let txid: Data = Data(hex: transaction.txid)!
         let txHash: Data = Data(txid.reversed())
         let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
         let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)
@@ -157,8 +147,8 @@ class ViewController: UIViewController {
             return
         }
         
-        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex!)!)
-        let txid: Data = Data(hex: self.txid!)!
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: transaction.lockingScriptHex)!)
+        let txid: Data = Data(hex: transaction.txid)!
         let txHash: Data = Data(txid.reversed())
         let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
         let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)
