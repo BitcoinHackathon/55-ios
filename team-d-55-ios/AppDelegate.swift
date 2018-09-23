@@ -30,6 +30,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             })
         }
         
+        Locator.subscribePosition(
+            accuracy: .city,
+            onUpdate: { cllocation in
+                print("New location received: \(cllocation)")
+            },
+            onFail: { locationError, last in
+                print("Failed with error: \(locationError)")
+            }
+            )
+        
         return true
     }
 
