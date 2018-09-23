@@ -14,7 +14,7 @@ class SendUtility {
     static func locationHashTransactionBuild(to: (address: Address, amount: UInt64), change: (address: Address, amount: UInt64), utxos: [UnspentTransaction]) throws -> (UnsignedTransaction, String) {
         let lockLocationScript = try! Script()
             // TODO: ロケーションデータを入れる
-            .appendData(String(12345).data(using: String.Encoding.utf8)!)
+            .appendData(LocationData.string.data(using: String.Encoding.utf8)!)
             .append(.OP_EQUAL)
 
         let locationHashScript = try! Script()
@@ -86,7 +86,7 @@ class SendUtility {
     static func serverLockUntilTransactionBuild(to: (address: Address, amount: UInt64), change: (address: Address, amount: UInt64), utxos: [UnspentTransaction]) throws -> UnsignedTransaction {
         
         let locationHashScriptTo = try! Script()
-            .appendData(SendUtility.string2ExpiryTime(dateString: "2018-09-21 14:45:00"))
+            .appendData(SendUtility.string2ExpiryTime(dateString: "2018-09-25 14:45:00"))
             .append(.OP_CHECKLOCKTIMEVERIFY)
             .append(.OP_DROP)
             .append(.OP_DUP)
@@ -129,7 +129,7 @@ class SendUtility {
             }
             
             let lockLocationScript = try! Script()
-                .appendData(String(12345).data(using: String.Encoding.utf8)!)
+                .appendData(LocationData.string.data(using: String.Encoding.utf8)!)
                 .append(.OP_EQUAL)
             
             let locationHashScript = try! Script()

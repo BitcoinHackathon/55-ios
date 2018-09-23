@@ -10,15 +10,15 @@ import UIKit
 import BitcoinKit
 
 class ViewController: UIViewController {
-    @IBOutlet weak var qrCodeImageView: UIImageView!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var balanceLabel: UILabel!
-    @IBOutlet private weak var destinationAddressTextField: UITextField!
+    @IBOutlet weak var lockingScriptHexLabel: UILabel!
+    @IBOutlet weak var txidLabel: UILabel!
     
     private var wallet: Wallet?  = Wallet()
     
-    let lockingScriptHex = "a91498eb28475bb64283a9fb194a1514d3ae0682235987"
-    let txid = "d182098297f919ca8b3574bb0c4722992dfe4233612c7c38334a081d6c3e0654"
+    var lockingScriptHex : String? = "a91498eb28475bb64283a9fb194a1514d3ae0682235987"
+    var txid : String? = "e643429e0357e803126ebbf31ef423d83c7d01a51b326ac9add30627a98e965a"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,10 +39,17 @@ class ViewController: UIViewController {
     func updateLabels() {
         print(wallet?.address.cashaddr)
         addressLabel.text = wallet?.address.cashaddr
-        qrCodeImageView.image = wallet?.address.qrImage()
         
         if let balance = wallet?.balance() {
             balanceLabel.text = "Balance : \(balance) satoshi"
+        }
+        
+        if let hex = self.lockingScriptHex {
+            lockingScriptHexLabel.text = "Locking Script Hex: \(hex)"
+        }
+        
+        if let txid = self.txid {
+            txidLabel.text = "txid: \(txid)"
         }
     }
     
@@ -58,19 +65,14 @@ class ViewController: UIViewController {
         reloadBalance()
     }
     
-    @IBAction func didTapSendButton(_ sender: UIButton) {
-        guard let addressString = destinationAddressTextField.text else {
-            return
-        }
-
+    // Location Hash Transactionを送信する
+    @IBAction func didTapSendLocationHashTransactionButton(_ sender: UIButton) {
         do {
             // 送金する
-            let address: Address = try AddressFactory.create(addressString)
-            
-//            try locationHashSend(amount: 1000) { [weak self] (response) in
-            try serverLockUntilSend(amount: 500) { [weak self] (response) in
+            try locationHashSend(amount: 1000) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
+                self?.txid = response
                 self?.reloadBalance()
             }
         } catch {
@@ -90,10 +92,24 @@ class ViewController: UIViewController {
         // ここがカスタム！
         let (unsignedTx, scriptHex) = try SendUtility.locationHashTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
         print("hex : ", scriptHex)
+        self.lockingScriptHex = scriptHex
         let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
-
+        
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
+    }
+    
+    @IBAction func didTapSendLockScriptTransactionButton(_ sender: UIButton) {
+        do {
+            // 送金する
+            try serverLockUntilSend(amount: 500) { [weak self] (response) in
+                print("送金完了 txid : ", response ?? "")
+                print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
+                self?.reloadBalance()
+            }
+        } catch {
+            print(error)
+        }
     }
     
     func serverLockUntilSend(amount: UInt64, completion: ((String?) -> Void)?) throws {
@@ -101,8 +117,8 @@ class ViewController: UIViewController {
             return
         }
 
-        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex)!)
-        let txid: Data = Data(hex: self.txid)!
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex!)!)
+        let txid: Data = Data(hex: self.txid!)!
         let txHash: Data = Data(txid.reversed())
         let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
         let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)

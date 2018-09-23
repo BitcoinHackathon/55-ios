@@ -8,6 +8,10 @@
 
 import Foundation
 
+struct LocationData{
+    static let string = "12345"
+}
+
 extension Data {
     init<T>(from value: T) {
         var value = value
