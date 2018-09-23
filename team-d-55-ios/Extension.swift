@@ -73,6 +73,6 @@ extension Data: BinaryConvertible {
 
 extension CLLocationCoordinate2D {
     var areaString: String {
-        return "latitude: \((latitude * 10000.0).rounded(.down)), longitude: \((longitude * 10000.0).rounded(.down))"
+        return "latitude: \((latitude * 1000.0).rounded() / 1000.0), longitude: \((longitude * 1000.0).rounded() / 1000.0)"
     }
 }
