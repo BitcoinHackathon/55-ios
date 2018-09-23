@@ -22,23 +22,26 @@ class UserViewController: UIViewController, MKMapViewDelegate {
             accuracy: .house,
             timeout: Timeout.delayed(60.0),
             onSuccess: { cllocation in
-                print("Location:\(cllocation.debugDescription)")
                 
                 //        let sourceLocation = CLLocationCoordinate2D(latitude:39.173209 , longitude: -94.593933)
                 let sourceLocation = cllocation.coordinate
-                
-                let targetAddress = UserDefaults.standard.string(forKey: "targetAddress") ?? "渋谷駅"
+                print("sourceLocation:\(sourceLocation)")
+                print("sourceLocationArea:\(sourceLocation.areaString)")
+
+//                let targetAddress = UserDefaults.standard.string(forKey: "targetAddress") ?? "渋谷駅"
+                let targetAddress = "渋谷駅"
                 Locator.location(
                     fromAddress: targetAddress,
                     onSuccess: { cllocations in
-                        print("Location:\(cllocation.debugDescription)")
                         
                         //                let destinationLocation = CLLocationCoordinate2D(latitude:38.643172 , longitude: -90.177429)
                         guard let destinationLocation = cllocations.first?.coordinates else {
                             print("targetAddress not found")
                             return
                         }
-                        
+                        print("destinationLocation:\(destinationLocation)")
+                        print("destinationLocationArea:\(destinationLocation.areaString)")
+
                         //                let sourcePin = CustomPin(pinTitle: "現在地", pinSubTitle: "", location: sourceLocation)
                         //                self.mapView.addAnnotation(sourcePin)
                         let destinationPin = CustomPin(pinTitle: targetAddress, pinSubTitle: "", location: destinationLocation)
