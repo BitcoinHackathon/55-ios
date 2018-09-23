@@ -18,6 +18,9 @@ class ViewController: UIViewController {
     
     private var wallet: Wallet?  = Wallet()
     
+    let lockingScriptHex = "a91498eb28475bb64283a9fb194a1514d3ae0682235987"
+    let txid = "d182098297f919ca8b3574bb0c4722992dfe4233612c7c38334a081d6c3e0654"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         createWalletIfNeeded()
@@ -80,7 +83,7 @@ class ViewController: UIViewController {
             let address: Address = try AddressFactory.create(addressString)
             
 //            try locationHashSend(amount: 1000) { [weak self] (response) in
-            try serverLockUntilSend(amount: 1000) { [weak self] (response) in
+            try serverLockUntilSend(amount: 500) { [weak self] (response) in
                 print("送金完了 txid : ", response ?? "")
                 print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
                 self?.reloadBalance()
@@ -100,7 +103,8 @@ class ViewController: UIViewController {
         let change: UInt64 = totalAmount - amount - fee
         
         // ここがカスタム！
-        let unsignedTx = try SendUtility.locationHashTransactionBuild(amount: amount, change: (wallet.address, change), utxos: utxosToSpend)
+        let (unsignedTx, scriptHex) = try SendUtility.locationHashTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        print("hex : ", scriptHex)
         let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
 
         let rawtx = signedTx.serialized().hex
@@ -112,20 +116,21 @@ class ViewController: UIViewController {
             return
         }
 
-        let transactionOutput = TransactionOutput(value: 20000, lockingScript: Data(hex: "a9141d31fa817808cfd658a551a340f7d6a19570a98387")!)
-        let txid: Data = Data(hex: "7c7acd5a341f2886d31c80be4da229e1a240cd182f0c22b1cebe8b95f7676966")!
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex)!)
+        let txid: Data = Data(hex: self.txid)!
         let txHash: Data = Data(txid.reversed())
         let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
         let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)
 
         let utxos = [utxo]
-        let (utxosToSpend, fee) = try StandardUtxoSelector().select(from: utxos, targetValue: amount)
+        var (utxosToSpend, fee) = try StandardUtxoSelector().select(from: utxos, targetValue: amount)
+        fee *= 2
         let totalAmount: UInt64 = utxosToSpend.reduce(UInt64()) { $0 + $1.output.value }
         let change: UInt64 = totalAmount - amount - fee
 
         // ここがカスタム！
-        let unsignedTx = try SendUtility.serverLockUntilTransactionBuild(amount: amount, change: (wallet.address, change), utxos: utxosToSpend)
-        let signedTx = try SendUtility.serverLockUntilTransactionSign(unsignedTx, with: [MockKey.keyA.privkey])
+        let unsignedTx = try SendUtility.serverLockUntilTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        let signedTx = try SendUtility.serverLockUntilTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey])
         
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
@@ -143,11 +148,11 @@ func testMockScript() {
 //        print("Mock result5: \(result6)")
 
         // Lock Until Script
-        print("==========================================================================================")
-        print("Lock Until Script")
-        print("==========================================================================================")
-        let result7 = try MockHelper.verifySingleKey(lockScript: LockUntil.lockScript, unlockScriptBuilder: LockUntil.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
-        print("Mock result5: \(result7)")
+//        print("==========================================================================================")
+//        print("Lock Until Script")
+//        print("==========================================================================================")
+//        let result7 = try MockHelper.verifySingleKey(lockScript: LockUntil.lockScript, unlockScriptBuilder: LockUntil.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
+//        print("Mock result5: \(result7)")
     } catch let error {
         print("Mock Script Error: \(error)")
     }

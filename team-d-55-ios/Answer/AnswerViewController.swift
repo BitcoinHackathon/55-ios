@@ -49,10 +49,10 @@ class AnswerViewController: UIViewController {
     
     func testMockScript() {
         do {
-            let result = try MockHelper.verifySingleKey(lockScript: simpleCalculation.lockScript, unlockScriptBuilder: simpleCalculation.UnlockScriptBuilder(), key: MockKey.keyA)
-            
+            let result = try MockHelper.verifySingleKey(lockScript: AnswerSimpleCalculation.lockScript, unlockScriptBuilder: AnswerSimpleCalculation.UnlockScriptBuilder(), key: MockKey.keyA)
+
             //let result = try MockHelper.verifySingleKey(lockScript: P2PKH.lockScript, unlockScriptBuilder: P2PKH.unlockScriptBuilder, key: MockKey.keyA)
-            
+
             //let result = try MockHelper.verifyMultiKey(lockScript: Multisig2of3.lockScript, unlockScriptBuilder: Multisig2of3.unlockScriptBuilder, keys: [MockKey.keyA, MockKey.keyB], verbose: true)
             print("Mock result: \(result)")
         } catch let error {
@@ -70,9 +70,9 @@ class AnswerViewController: UIViewController {
         let change: UInt64 = totalAmount - amount - fee
         
         // ここがカスタム！
-        let unsignedTx = try SendUtility.customTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
-        let signedTx = try SendUtility.customTransactionSign(unsignedTx, with: [wallet.privateKey])
-        
+        let (unsignedTx, _) = try SendUtility.locationHashTransactionBuild(to: (wallet.address, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        let signedTx = try SendUtility.locationHashTransactionSign(unsignedTx, with: [wallet.privateKey])
+
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
     }
