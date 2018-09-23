@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		052EE200215707E5006959D0 /* UserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052EE1FF215707E4006959D0 /* UserViewController.swift */; };
+		052EE202215709E2006959D0 /* CustomPin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052EE201215709E2006959D0 /* CustomPin.swift */; };
 		0CD8D33421537A40005E941E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD8D33321537A40005E941E /* AppDelegate.swift */; };
 		0CD8D33621537A40005E941E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD8D33521537A40005E941E /* ViewController.swift */; };
 		0CD8D33921537A40005E941E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CD8D33721537A40005E941E /* Main.storyboard */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		052EE1FF215707E4006959D0 /* UserViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserViewController.swift; sourceTree = "<group>"; };
+		052EE201215709E2006959D0 /* CustomPin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPin.swift; sourceTree = "<group>"; };
 		0CD8D33021537A40005E941E /* team-d-55-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "team-d-55-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CD8D33321537A40005E941E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CD8D33521537A40005E941E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -76,6 +80,8 @@
 			children = (
 				0CD8D33321537A40005E941E /* AppDelegate.swift */,
 				0CD8D33521537A40005E941E /* ViewController.swift */,
+				052EE201215709E2006959D0 /* CustomPin.swift */,
+				052EE1FF215707E4006959D0 /* UserViewController.swift */,
 				0CD8D34921537E79005E941E /* MockScripts.swift */,
 				0CD8D34B215388C7005E941E /* SendUtility.swift */,
 				0CD8D3512154904C005E941E /* Extension.swift */,
@@ -246,10 +252,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CD8D33621537A40005E941E /* ViewController.swift in Sources */,
+				052EE200215707E5006959D0 /* UserViewController.swift in Sources */,
 				0CD8D33421537A40005E941E /* AppDelegate.swift in Sources */,
 				0CD8D3522154904C005E941E /* Extension.swift in Sources */,
 				0CD8D35021539DAB005E941E /* AnswerMockScripts.swift in Sources */,
 				0CD8D34E21539D9B005E941E /* AnswerViewController.swift in Sources */,
+				052EE202215709E2006959D0 /* CustomPin.swift in Sources */,
 				0CD8D34C215388C7005E941E /* SendUtility.swift in Sources */,
 				0CD8D34A21537E79005E941E /* MockScripts.swift in Sources */,
 			);
@@ -397,7 +405,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 98478E5868;
+				DEVELOPMENT_TEAM = G828R8B6AG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -420,7 +428,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 98478E5868;
+				DEVELOPMENT_TEAM = G828R8B6AG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
