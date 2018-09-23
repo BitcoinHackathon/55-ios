@@ -10,7 +10,8 @@ import Foundation
 import MapKit
 
 struct LocationData{
-    static let string = "12345"
+    static let destinationLocation = "12345"
+    static let userLocation = "12345"
 }
 
 extension Data {

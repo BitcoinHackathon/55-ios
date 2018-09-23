@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     private var wallet: Wallet?  = Wallet()
     
     var lockingScriptHex : String? = "a91498eb28475bb64283a9fb194a1514d3ae0682235987"
-    var txid : String? = "e643429e0357e803126ebbf31ef423d83c7d01a51b326ac9add30627a98e965a"
+    var txid : String? = "85be95aa2d943a51ee7aa2474deeccc862ab9b5940979c24c908f9eb28ec91b1"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,6 +99,7 @@ class ViewController: UIViewController {
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
     }
     
+    // server向けにLock Until Scriptを送信する
     @IBAction func didTapSendLockScriptTransactionButton(_ sender: UIButton) {
         do {
             // 送金する
@@ -136,17 +137,59 @@ class ViewController: UIViewController {
         let rawtx = signedTx.serialized().hex
         BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
     }
+    
+    // ユーザが場所に到達した時に位置情報を利用してトランザクションを送信する
+    @IBAction func didTapUserSendTransactionButton(_ sender: UIButton) {
+        do {
+            try userSend(amount: 500) { [weak self] (response) in
+                print("送金完了 txid : ", response ?? "")
+                print("https://www.blocktrail.com/tBCC/tx/\(response ?? "")")
+                self?.reloadBalance()
+            }
+        } catch {
+            print(error)
+        }
+
+    }
+    
+    func userSend(amount: UInt64, completion: ((String?) -> Void)?) throws {
+        guard let wallet = wallet else {
+            return
+        }
+        
+        let transactionOutput = TransactionOutput(value: 1000, lockingScript: Data(hex: self.lockingScriptHex!)!)
+        let txid: Data = Data(hex: self.txid!)!
+        let txHash: Data = Data(txid.reversed())
+        let transactionOutpoint = TransactionOutPoint(hash: txHash, index: 0)
+        let utxo = UnspentTransaction(output: transactionOutput, outpoint: transactionOutpoint)
+        
+        let utxos = [utxo]
+        var (utxosToSpend, fee) = try StandardUtxoSelector().select(from: utxos, targetValue: amount)
+        fee *= 2
+        let totalAmount: UInt64 = utxosToSpend.reduce(UInt64()) { $0 + $1.output.value }
+        let change: UInt64 = totalAmount - amount - fee
+        
+        let toAddress: Address = try AddressFactory.create("bchtest:qpytf7xczxf2mxa3gd6s30rthpts0tmtgyw8ud2sy3")
+        
+        // ここがカスタム！
+        let unsignedTx = try SendUtility.userTransactionBuild(to: (toAddress, amount), change: (wallet.address, change), utxos: utxosToSpend)
+        let signedTx = try SendUtility.userTransactionSign(unsignedTx, to: wallet.address, with: [wallet.privateKey])
+        
+        let rawtx = signedTx.serialized().hex
+        BitcoinComTransactionBroadcaster(network: .testnet).post(rawtx, completion: completion)
+    }
+    
 }
 
 // MARK: - Hello, Bitcoin Script!以降で使用します
 func testMockScript() {
     do {
         // ロケーションを使ったP2SH Script
-//        print("==========================================================================================")
-//        print("ロケーションを使ったP2SH Script")
-//        print("==========================================================================================")
-//        let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
-//        print("Mock result5: \(result6)")
+        print("==========================================================================================")
+        print("ロケーションを使ったP2SH Script")
+        print("==========================================================================================")
+        let result6 = try MockHelper.verifySingleKey(lockScript: LocationHash.lockScript, unlockScriptBuilder: LocationHash.UnlockScriptBuilder(), key: MockKey.keyA, verbose: true)
+        print("Mock result5: \(result6)")
 
         // Lock Until Script
 //        print("==========================================================================================")
