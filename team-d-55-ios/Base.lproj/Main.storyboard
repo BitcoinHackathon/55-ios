@@ -180,6 +180,9 @@
                                     <constraint firstAttribute="height" constant="64" id="kHX-ds-E2G"/>
                                 </constraints>
                                 <state key="normal" title="参加"/>
+                                <connections>
+                                    <action selector="join:" destination="ndM-pY-epo" eventType="touchUpInside" id="YN0-Ss-JR6"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
