@@ -12,8 +12,7 @@ import BitcoinKit
 struct LocationHash {
     // lock script
     static let lockLocationScript = try! Script()
-        // TODO: ロケーションデータを入れる
-        .appendData(String(12345).data(using: String.Encoding.utf8)!)
+        .appendData(LocationData.destinationLocation.data(using: String.Encoding.utf8)!)
         .append(.OP_EQUAL)
     
     static let lockScript = try! Script()
@@ -36,18 +35,21 @@ struct LocationHash {
                 return Script()
             }
 
+            let userLockLocationScript = try! Script()
+                .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
+                .append(.OP_EQUAL)
+
             // ロケーションデータでアンロックする場合はこちらを使う
-//            let script = try! Script()
-//                .append(.OP_0)
-//                // TODO: ロケーションデータを入れる
-//                .appendData(String(12345).data(using: String.Encoding.utf8)!)
-//                .appendData(lockLocationScript.data)
-//                .append(.OP_FALSE)
-            // 秘密鍵でアンロックする場合はこちらを使う
             let script = try! Script()
-                .appendData(sigKeyPair.signature)
-                .appendData(sigKeyPair.key.data)
-                .append(.OP_TRUE)
+                .append(.OP_0)
+                .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
+                .appendData(userLockLocationScript.data)
+                .append(.OP_FALSE)
+//            // 秘密鍵でアンロックする場合はこちらを使う
+//            let script = try! Script()
+//                .appendData(sigKeyPair.signature)
+//                .appendData(sigKeyPair.key.data)
+//                .append(.OP_TRUE)
 
             return script
         }
