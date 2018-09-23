@@ -18,6 +18,21 @@ class UserViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // MapViewの中心位置を指定.
+        mapView.centerCoordinate = CLLocationCoordinate2DMake(35.654168073121134, 139.7014184576829)
+        
+        // 縮尺を変更.
+        // 倍率を指定.
+//        let span : MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        let span : MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 1)
+
+        // MapViewで指定した中心位置とMKCoordinateSapnで宣言したspanを指定する.
+        let region : MKCoordinateRegion = MKCoordinateRegion(center: mapView.centerCoordinate, span: span)
+        
+        // MapViewのregionプロパティにregionを指定.
+        mapView.region = region
+
+        
         Locator.currentPosition(
             accuracy: .house,
             timeout: Timeout.delayed(60.0),
@@ -91,6 +106,24 @@ class UserViewController: UIViewController, MKMapViewDelegate {
         renderer.strokeColor = UIColor.blue
         renderer.lineWidth = 4.0
         return renderer
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if (annotation is MKUserLocation) {
+            // ユーザの現在地の青丸マークは置き換えない
+            return nil
+        } else {
+            // CustomAnnotationの場合に画像を配置
+            let identifier = "Pin"
+            var annotationView: MKAnnotationView? = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+            if annotationView == nil {
+                annotationView = MKAnnotationView.init(annotation: annotation, reuseIdentifier: identifier)
+            }
+            annotationView?.image = UIImage.init(named: "bitcoin_cash") // 任意の画像名
+            annotationView?.annotation = annotation
+            annotationView?.canShowCallout = true  // タップで吹き出しを表示
+            return annotationView
+        }
     }
     
     override func didReceiveMemoryWarning() {
