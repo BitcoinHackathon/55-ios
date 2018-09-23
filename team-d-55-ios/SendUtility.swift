@@ -15,7 +15,7 @@ class SendUtility {
         let lockLocationScript = try! Script()
             .appendData(LocationData.destinationLocation.data(using: String.Encoding.utf8)!)
             .append(.OP_EQUAL)
-
+        
         let locationHashScript = try! Script()
             .append(.OP_IF)
                 .append(.OP_DUP)
@@ -29,6 +29,13 @@ class SendUtility {
                 .append(.OP_EQUAL)
             .append(.OP_ENDIF)
             .toP2SH()
+        
+        let unlockingScript: Script = try Script()
+            .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
+            .appendData(lockLocationScript.data)
+            .append(.OP_FALSE)
+            .appendData(locationHashScript.data)
+
 
 //        let addr = locationHashScriptTo.standardAddress(network: .testnet)
 
@@ -198,16 +205,7 @@ class SendUtility {
         
         // Sign
         signingInputs = unsignedTransaction.tx.inputs
-        let hashType = SighashType.BCH.ALL
-        for (i, utxo) in unsignedTransaction.utxos.enumerated() {
-            // Select key
-            let pubkeyHash: Data = (keys.first?.publicKey().pubkeyHash)!
-            
-            let keysOfUtxo: [PrivateKey] = keys.filter { $0.publicKey().pubkeyHash == pubkeyHash }
-            guard let key = keysOfUtxo.first else {
-                continue
-            }
-            
+        for (i, _) in unsignedTransaction.utxos.enumerated() {
             let lockLocationScript = try! Script()
                 .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
                 .append(.OP_EQUAL)
@@ -225,20 +223,9 @@ class SendUtility {
                 .append(.OP_EQUAL)
                 .append(.OP_ENDIF)            
             
-            let output = TransactionOutput(value: utxo.output.value, lockingScript: locationHashScript.data)
-            
-            // Sign transaction hash
-            let sighash: Data = signingTransaction.signatureHash(for: output, inputIndex: i, hashType: SighashType.BCH.ALL)
-            let signature: Data = try Crypto.sign(sighash, privateKey: key)
             let txin = signingInputs[i]
-            let pubkey = key.publicKey()
-            
-            // Create Signature Script
-            let sigWithHashType: Data = signature + UInt8(hashType)
             
             let unlockingScript: Script = try Script()
-                .append(.OP_0)
-                .appendData(LocationData.userLocation.data(using: String.Encoding.utf8)!)
                 .appendData(lockLocationScript.data)
                 .append(.OP_FALSE)
                 .appendData(locationHashScript.data)

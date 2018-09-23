@@ -17,8 +17,8 @@ class ViewController: UIViewController {
     
     private var wallet: Wallet?  = Wallet()
     
-    var lockingScriptHex : String? = "a91498eb28475bb64283a9fb194a1514d3ae0682235987"
-    var txid : String? = "85be95aa2d943a51ee7aa2474deeccc862ab9b5940979c24c908f9eb28ec91b1"
+    var lockingScriptHex : String? = "a914f78d6227ebb80eb7ef0141ae243cb8f9e43926c087"
+    var txid : String? = "39777ac9be2a7fc731989dfaee7f8a66e5ea7d9f7b2eec3e6f93d461b468b8da"
     
     override func viewDidLoad() {
         super.viewDidLoad()
